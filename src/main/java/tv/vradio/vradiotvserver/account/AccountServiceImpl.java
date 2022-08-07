@@ -20,7 +20,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public boolean confirmToken(Account account, String token) {
-        return !activeTokens.containsKey(account) || activeTokens.get(account).equals(token);
+        return activeTokens.containsKey(account) || activeTokens.get(account).equals(token);
     }
 
     @Override
