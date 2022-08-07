@@ -3,23 +3,26 @@ package tv.vradio.vradiotvserver.account;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
+@Table(name = "Accounts")
 @Getter
 @Setter
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private final UUID id = UUID.randomUUID();
 
+    @Column(name = "username")
     private String username;
+    @Column(name = "email")
     private String email;
+    @Column(name = "hashed_password")
     private String hashedPassword;
+    @Column(name = "verified")
     private boolean verified;
 
     protected Account() {}
