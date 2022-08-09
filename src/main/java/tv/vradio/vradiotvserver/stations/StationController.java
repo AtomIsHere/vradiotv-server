@@ -12,7 +12,6 @@ import tv.vradio.vradiotvserver.exceptions.AuthenticationFailureException;
 import tv.vradio.vradiotvserver.exceptions.StationNotFoundException;
 
 import java.util.Collection;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,8 +26,8 @@ public class StationController {
     }
 
     @GetMapping("/stations/get")
-    public Station get(@RequestParam("owner-id") String ownerId) {
-         Account account = accountRepository.findById(UUID.fromString(ownerId)).orElseThrow(() -> new AccountNotFoundException(ownerId));
+    public Station get(@RequestParam("owner") String owner) {
+         Account account = accountRepository.findByUsername(owner).orElseThrow(() -> new AccountNotFoundException(owner));
 
          if(stationService.hasStation(account)) {
              return stationService.findStation(account);
@@ -39,7 +38,7 @@ public class StationController {
 
     @GetMapping("/stations/create")
     public Station create(@RequestParam("auth-token") String authToken, @RequestParam("owner") String accountOwner, @RequestParam("name") String name) {
-        Account account = accountRepository.findById(UUID.fromString(accountOwner)).orElseThrow(() -> new AccountNotFoundException(accountOwner));
+        Account account = accountRepository.findByUsername(accountOwner).orElseThrow(() -> new AccountNotFoundException(accountOwner));
 
         if(!accountService.confirmToken(account, authToken)) {
             throw new AuthenticationFailureException(authToken);
@@ -48,7 +47,7 @@ public class StationController {
             return stationService.findStation(account);
         }
 
-        Station station = new Station(account.getId(), name);
+        Station station = new Station(account.getUsername(), name);
         stationService.registerStation(station);
         return station;
     }
