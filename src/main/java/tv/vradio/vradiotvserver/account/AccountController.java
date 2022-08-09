@@ -1,6 +1,5 @@
 package tv.vradio.vradiotvserver.account;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -43,26 +42,6 @@ public class AccountController {
             return accountService.generateToken(target);
         } else {
             throw new InvalidPasswordException();
-        }
-    }
-
-    @ControllerAdvice
-    static class AccountNotFoundAdvice {
-        @ResponseBody
-        @ExceptionHandler(AccountNotFoundException.class)
-        @ResponseStatus(HttpStatus.NOT_FOUND)
-        String accountNotFoundHandler(AccountNotFoundException ex) {
-            return ex.getMessage();
-        }
-    }
-
-    @ControllerAdvice
-    static class InvalidPasswordAdvice {
-        @ResponseBody
-        @ExceptionHandler(AccountNotFoundException.class)
-        @ResponseStatus(HttpStatus.FORBIDDEN)
-        String invalidPasswordHandler(InvalidPasswordException ex) {
-            return ex.getMessage();
         }
     }
 
