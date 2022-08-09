@@ -21,7 +21,7 @@ public class AccountController {
     @GetMapping("/account/create-account")
     public CreationResult createAccount(@RequestParam(name = "username") String username, @RequestParam(name = "email") String email, @RequestParam(name = "password") String password) {
         if(repository.existsByUsername(username)) {
-            return CreationResult.EMAIL_EXISTS;
+            return CreationResult.USERNAME_EXISTS;
         } else if(repository.existsByEmail(email)) {
             return CreationResult.EMAIL_EXISTS;
         }
