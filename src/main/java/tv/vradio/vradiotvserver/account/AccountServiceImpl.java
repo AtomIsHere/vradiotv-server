@@ -2,13 +2,13 @@ package tv.vradio.vradiotvserver.account;
 
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AccountServiceImpl implements AccountService {
-    private final Map<Account, String> activeTokens = new HashMap<>();
+    private final Map<Account, String> activeTokens = new ConcurrentHashMap<>();
 
     @Override
     public String generateToken(Account account) {
