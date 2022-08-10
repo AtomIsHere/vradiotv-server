@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
 @Table(name = "Accounts")
@@ -12,9 +11,9 @@ import java.util.UUID;
 @Setter
 public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private final UUID id = UUID.randomUUID();
+    private Long id;
 
     @Column(name = "username")
     private String username;
