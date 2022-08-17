@@ -2,6 +2,7 @@ package tv.vradio.vradiotvserver.stations;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,4 +14,7 @@ public class Station {
 
     private final String name;
     private final Queue<Media> mediaQueue = new ConcurrentLinkedQueue<>();
+
+    @Setter
+    private StationStatus status;
 }
