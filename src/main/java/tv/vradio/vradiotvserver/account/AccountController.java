@@ -45,6 +45,26 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/account/check-auth")
+    public boolean checkAuth(@RequestParam(name = "username") String username, @RequestParam(name = "auth-key") String authKey) {
+        Account target = repository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
+
+        return accountService.confirmToken(target, authKey);
+    }
+
+    @GetMapping("/account/logout")
+    public boolean logout(@RequestParam(name = "username") String username, @RequestParam(name = "auth-key") String authKey) {
+        Account target = repository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
+
+        if(accountService.confirmToken(target, authKey)) {
+            accountService.deauth(target);
+        } else {
+            throw new InvalidPasswordException();
+        }
+
+        return true;
+    }
+
     public enum CreationResult {
         SUCCESS,
         USERNAME_EXISTS,
