@@ -4,6 +4,10 @@ import tv.vradio.vradiotvserver.account.Account;
 
 public class StationNotFoundException extends RuntimeException {
     public StationNotFoundException(Account owner) {
-        super("Could not find station with owner: " + owner.getUsername());
+        this(owner.getUsername());
+    }
+
+    public StationNotFoundException(String username) {
+        super("Could not find station with owner: " + username);
     }
 }
