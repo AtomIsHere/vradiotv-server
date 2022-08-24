@@ -12,6 +12,7 @@ import tv.vradio.vradiotvserver.exceptions.AuthenticationFailureException;
 import tv.vradio.vradiotvserver.exceptions.StationNotFoundException;
 
 import java.util.Collection;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class StationController {
             return stationService.findStation(account);
         }
 
-        Station station = new Station(account.getUsername(), name);
+        Station station = new Station(UUID.randomUUID() ,account.getUsername(), name);
         stationService.registerStation(station);
         return station;
     }

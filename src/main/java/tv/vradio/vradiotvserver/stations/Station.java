@@ -6,12 +6,14 @@ import lombok.Setter;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @RedisHash("Station")
 @RequiredArgsConstructor
 @Getter
 public class Station {
+    private final UUID stationId;
     private final String ownerUsername;
 
     private final String name;
