@@ -46,7 +46,7 @@ public class StationController {
             return station;
         }
 
-        station = new Station(UUID.randomUUID() ,account.getUsername(), name);
+        station = new Station(UUID.randomUUID(), account.getUsername(), name);
         stationRepository.save(station);
         return station;
     }
