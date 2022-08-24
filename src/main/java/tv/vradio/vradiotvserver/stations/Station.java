@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @RequiredArgsConstructor
 @Getter
 public class Station {
-    private final UUID stationId;
+    private final UUID id;
     private final String ownerUsername;
 
     private final String name;
