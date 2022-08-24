@@ -3,10 +3,12 @@ package tv.vradio.vradiotvserver.stations;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@RedisHash("Station")
 @RequiredArgsConstructor
 @Getter
 public class Station {
