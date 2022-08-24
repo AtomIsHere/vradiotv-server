@@ -13,28 +13,25 @@ import tv.vradio.vradiotvserver.exceptions.StationNotFoundException;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequiredArgsConstructor
 public class StationController {
     private final AccountRepository accountRepository;
     private final AccountService accountService;
-    private final StationService stationService;
+    private final StationRepository stationRepository;
 
     @GetMapping("/stations/get-all")
     public Collection<Station> getAll() {
-        return stationService.getAll();
+        return StreamSupport.stream(stationRepository.findAll().spliterator(), false)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @GetMapping("/stations/get")
     public Station get(@RequestParam("owner") String owner) {
-         Account account = accountRepository.findByUsername(owner).orElseThrow(() -> new AccountNotFoundException(owner));
-
-         if(stationService.hasStation(account)) {
-             return stationService.findStation(account);
-         } else {
-            throw new StationNotFoundException(account);
-         }
+         return stationRepository.findByOwnerUsername(owner).orElseThrow(() -> new StationNotFoundException(owner));
     }
 
     @GetMapping("/stations/create")
@@ -44,12 +41,13 @@ public class StationController {
         if(!accountService.confirmToken(account, authToken)) {
             throw new AuthenticationFailureException(authToken);
         }
-        if(stationService.hasStation(account)) {
-            return stationService.findStation(account);
+        Station station = stationRepository.findByOwnerUsername(accountOwner).orElse(null);
+        if(station != null) {
+            return station;
         }
 
-        Station station = new Station(UUID.randomUUID() ,account.getUsername(), name);
-        stationService.registerStation(station);
+        station = new Station(UUID.randomUUID() ,account.getUsername(), name);
+        stationRepository.save(station);
         return station;
     }
 
