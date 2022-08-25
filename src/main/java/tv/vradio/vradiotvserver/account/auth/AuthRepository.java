@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Repository
 public interface AuthRepository extends CrudRepository<AuthToken, UUID> {
@@ -16,4 +17,11 @@ public interface AuthRepository extends CrudRepository<AuthToken, UUID> {
 
     void deleteByToken(UUID token);
     void deleteByAccountName(String accountName);
+
+    default boolean confirmToken(UUID token, String accountName) {
+        AtomicBoolean auth = new AtomicBoolean(false);
+
+        findByToken(token).ifPresent(at -> auth.set(at.accountName().equals(accountName)));
+        return auth.get();
+    }
 }

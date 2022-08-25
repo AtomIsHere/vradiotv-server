@@ -9,7 +9,6 @@ import tv.vradio.vradiotvserver.exceptions.AccountNotFoundException;
 import tv.vradio.vradiotvserver.exceptions.InvalidPasswordException;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @RestController
 public class AccountController {
@@ -58,10 +57,7 @@ public class AccountController {
 
     @GetMapping("/account/check-auth")
     public boolean checkAuth(@RequestParam(name = "username") String username, @RequestParam(name = "auth-key") String authKey) {
-        AtomicBoolean auth = new AtomicBoolean(false);
-
-        authRepository.findByAccountName(username).ifPresent(at -> auth.set(at.token().toString().equals(authKey)));
-        return auth.get();
+       return authRepository.confirmToken(UUID.fromString(authKey), username);
     }
 
     @GetMapping("/account/logout")
