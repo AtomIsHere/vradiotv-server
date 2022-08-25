@@ -18,10 +18,10 @@ public interface AuthRepository extends CrudRepository<AuthToken, UUID> {
     void deleteByToken(UUID token);
     void deleteByAccountName(String accountName);
 
-    default boolean confirmToken(UUID token, String accountName) {
+    default boolean confirmToken(String token, String accountName) {
         AtomicBoolean auth = new AtomicBoolean(false);
 
-        findByToken(token).ifPresent(at -> auth.set(at.accountName().equals(accountName)));
+        findByAccountName(accountName).ifPresent(at -> auth.set(at.token().toString().equals(token)));
         return auth.get();
     }
 }

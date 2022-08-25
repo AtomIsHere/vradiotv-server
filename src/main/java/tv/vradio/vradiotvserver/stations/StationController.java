@@ -33,7 +33,13 @@ public class StationController {
 
     @GetMapping("/stations/create")
     public Station create(@RequestParam("auth-token") String authToken, @RequestParam("name") String name) {
-        AuthToken token = authRepository.findByToken(UUID.fromString(authToken)).orElse(null);
+        AuthToken token;
+        try {
+            token = authRepository.findByToken(UUID.fromString(authToken)).orElse(null);
+        } catch (IllegalArgumentException ex) {
+            throw new AuthenticationFailureException(authToken);
+        }
+
         if(token == null) {
             throw new AuthenticationFailureException(authToken);
         }

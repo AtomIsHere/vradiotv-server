@@ -57,7 +57,7 @@ public class AccountController {
 
     @GetMapping("/account/check-auth")
     public boolean checkAuth(@RequestParam(name = "username") String username, @RequestParam(name = "auth-key") String authKey) {
-       return authRepository.confirmToken(UUID.fromString(authKey), username);
+       return authRepository.confirmToken(authKey, username);
     }
 
     @GetMapping("/account/logout")
