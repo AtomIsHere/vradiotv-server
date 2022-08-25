@@ -1,7 +1,5 @@
 package tv.vradio.vradiotvserver.stations;
 
-import java.net.URL;
-
 /**
  * Stores a given type of media and where to find it
  *
@@ -10,8 +8,8 @@ import java.net.URL;
  * @param duration how long the media is (in ms)
  * @param streamingService which service the media is on
  */
-public record Media(String name, URL url, double duration, StreamingService streamingService) {
-    enum StreamingService {
+public record Media(String name, String url, double duration, StreamingService streamingService) {
+    public enum StreamingService {
         SPOTIFY,
         NETFLIX
     }

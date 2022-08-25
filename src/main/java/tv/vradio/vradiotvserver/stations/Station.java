@@ -1,20 +1,31 @@
 package tv.vradio.vradiotvserver.stations;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.redis.core.RedisHash;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-@RequiredArgsConstructor
+@RedisHash("Station")
 @Getter
 public class Station {
-    private final String ownerUsername;
+    private UUID id;
+    private String ownerUsername;
 
-    private final String name;
-    private final Queue<Media> mediaQueue = new ConcurrentLinkedQueue<>();
+    private String name;
+    private List<Media> mediaQueue;
 
     @Setter
     private StationStatus status;
+
+    public Station(UUID id, String ownerUsername, String name) {
+        this.id = id;
+        this.ownerUsername = ownerUsername;
+        this.name = name;
+        this.mediaQueue = new CopyOnWriteArrayList<>();
+    }
+
+    public Station() {}
 }
