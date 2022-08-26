@@ -28,17 +28,21 @@ public class StationController {
 
     @GetMapping("/stations/get")
     public Station get(@RequestParam("owner") String owner) {
-         return stationRepository.findByOwnerUsername(owner).orElseThrow(() -> new StationNotFoundException(owner));
+         return stationRepository.findOwnerName(owner).orElseThrow(() -> new StationNotFoundException(owner));
     }
 
     @GetMapping("/stations/create")
     public Station create(@RequestParam("auth-token") String authToken, @RequestParam("name") String name) {
         AuthToken token;
+
+        UUID auth;
         try {
-            token = authRepository.findByToken(UUID.fromString(authToken)).orElse(null);
-        } catch (IllegalArgumentException ex) {
+            auth = UUID.fromString(authToken);
+        } catch(IllegalArgumentException ex) {
             throw new AuthenticationFailureException(authToken);
         }
+
+        token = authRepository.findById(auth).orElse(null);
 
         if(token == null) {
             throw new AuthenticationFailureException(authToken);
@@ -46,7 +50,7 @@ public class StationController {
 
         String accountOwner = token.accountName();
 
-        Station station = stationRepository.findByOwnerUsername(accountOwner).orElse(null);
+        Station station = stationRepository.findOwnerName(accountOwner).orElse(null);
         if(station != null) {
             return station;
         }

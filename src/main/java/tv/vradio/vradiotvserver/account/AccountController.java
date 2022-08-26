@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import tv.vradio.vradiotvserver.account.auth.AuthRepository;
 import tv.vradio.vradiotvserver.account.auth.AuthToken;
 import tv.vradio.vradiotvserver.exceptions.AccountNotFoundException;
+import tv.vradio.vradiotvserver.exceptions.AuthenticationFailureException;
 import tv.vradio.vradiotvserver.exceptions.InvalidPasswordException;
 
 import java.util.UUID;
@@ -43,9 +44,7 @@ public class AccountController {
         Account target = accountRepository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
 
         if(passwordEncoder.matches(password, target.getHashedPassword())) {
-            if(authRepository.existsByAccountName(target.getUsername())) {
-                authRepository.deleteByAccountName(target.getUsername());
-            }
+            authRepository.findName(username).ifPresent(at -> authRepository.deleteById(at.id()));
 
             AuthToken token = new AuthToken(UUID.randomUUID(), target.getUsername());
             authRepository.save(token);
@@ -57,12 +56,26 @@ public class AccountController {
 
     @GetMapping("/account/check-auth")
     public boolean checkAuth(@RequestParam(name = "username") String username, @RequestParam(name = "auth-key") String authKey) {
-       return authRepository.confirmToken(authKey, username);
+       UUID auth;
+       try {
+           auth = UUID.fromString(authKey);
+       } catch(IllegalArgumentException ex) {
+           throw new AuthenticationFailureException(authKey);
+       }
+
+       return authRepository.confirmToken(auth, username);
     }
 
     @GetMapping("/account/logout")
     public boolean logout(@RequestParam(name = "auth-key") String authKey) {
-        authRepository.deleteByToken(UUID.fromString(authKey));
+        UUID auth;
+        try {
+            auth = UUID.fromString(authKey);
+        } catch(IllegalArgumentException ex) {
+            throw new AuthenticationFailureException(authKey);
+        }
+
+        authRepository.deleteById(auth);
 
         return true;
     }

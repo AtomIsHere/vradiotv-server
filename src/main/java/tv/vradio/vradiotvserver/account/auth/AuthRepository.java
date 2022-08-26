@@ -6,22 +6,28 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.StreamSupport;
 
 @Repository
 public interface AuthRepository extends CrudRepository<AuthToken, UUID> {
-    boolean existsByToken(UUID token);
-    boolean existsByAccountName(String accountName);
+    @Override
+    boolean existsById(UUID id);
 
-    Optional<AuthToken> findByToken(UUID token);
-    Optional<AuthToken> findByAccountName(String accountName);
+    @Override
+    Optional<AuthToken> findById(UUID id);
 
-    void deleteByToken(UUID token);
-    void deleteByAccountName(String accountName);
+    void deleteById(UUID id);
 
-    default boolean confirmToken(String token, String accountName) {
+    default boolean confirmToken(UUID token, String accountName) {
         AtomicBoolean auth = new AtomicBoolean(false);
 
-        findByAccountName(accountName).ifPresent(at -> auth.set(at.token().toString().equals(token)));
+        findById(token).ifPresent(at -> auth.set(at.accountName().equals(accountName)));
         return auth.get();
+    }
+
+    default Optional<AuthToken> findName(String accountName) {
+        return StreamSupport.stream(findAll().spliterator(), false)
+                .filter(at -> at.accountName().equals(accountName))
+                .findAny();
     }
 }
