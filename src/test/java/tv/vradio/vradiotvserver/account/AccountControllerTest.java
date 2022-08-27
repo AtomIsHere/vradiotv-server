@@ -17,6 +17,8 @@ import java.util.UUID;
 @SpringBootTest
 @ExtendWith(RedisExtension.class)
 @DirtiesContext
+@Order(2)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AccountControllerTest {
     @Autowired
