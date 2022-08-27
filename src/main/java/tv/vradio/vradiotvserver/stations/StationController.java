@@ -2,6 +2,7 @@ package tv.vradio.vradiotvserver.stations;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tv.vradio.vradiotvserver.account.auth.AuthRepository;
@@ -27,7 +28,19 @@ public class StationController {
     }
 
     @GetMapping("/stations/get")
-    public Station get(@RequestParam("owner") String owner) {
+    public Station get(@RequestParam("id") String stationId) {
+        UUID id;
+        try {
+            id = UUID.fromString(stationId);
+        } catch(IllegalArgumentException ex) {
+            throw new StationNotFoundException(stationId);
+        }
+
+        return stationRepository.findById(id).orElseThrow(() -> new StationNotFoundException(stationId));
+    }
+
+    @GetMapping("/stations/get-by-owner")
+    public Station getByOwner(@RequestParam("owner") String owner) {
          return stationRepository.findOwnerName(owner).orElseThrow(() -> new StationNotFoundException(owner));
     }
 
@@ -60,5 +73,39 @@ public class StationController {
         return station;
     }
 
+    @GetMapping("/stations/{id}/queue-media")
+    public Media queueMedia(@PathVariable("id") String id,
+                            @RequestParam("auth-token") String token,
+                            @RequestParam("url") String url,
+                            @RequestParam("name") String name,
+                            @RequestParam("service") Media.StreamingService service,
+                            @RequestParam(value = "duration", required = false, defaultValue = "0") long duration) {
+        UUID stationId;
+        try {
+            stationId = UUID.fromString(id);
+        } catch(IllegalArgumentException ex) {
+            throw new StationNotFoundException(id);
+        }
 
+        Station target = stationRepository.findById(stationId).orElseThrow(() -> new StationNotFoundException(id));
+
+        UUID authToken;
+        try {
+            authToken = UUID.fromString(id);
+        } catch(IllegalArgumentException ex) {
+            throw new AuthenticationFailureException(token);
+        }
+
+        if(!authRepository.confirmToken(authToken, target.getOwnerUsername())) {
+            throw new AuthenticationFailureException(token);
+        }
+
+        // TODO: url sanity check
+
+        Media media = new Media(name, url, duration, service);
+        target.getMediaQueue().add(media);
+        stationRepository.deleteById(stationId);
+        stationRepository.save(target);
+        return media;
+    }
 }

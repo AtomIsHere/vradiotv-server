@@ -8,6 +8,6 @@ public class StationNotFoundException extends RuntimeException {
     }
 
     public StationNotFoundException(String username) {
-        super("Could not find station with owner: " + username);
+        super("Could not find station: " + username);
     }
 }
