@@ -91,7 +91,7 @@ public class StationController {
 
         UUID authToken;
         try {
-            authToken = UUID.fromString(id);
+            authToken = UUID.fromString(token);
         } catch(IllegalArgumentException ex) {
             throw new AuthenticationFailureException(token);
         }

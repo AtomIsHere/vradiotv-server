@@ -15,7 +15,7 @@ public class Station {
     private String ownerUsername;
 
     private String name;
-    private List<Media> mediaQueue;
+    private List<Media> mediaQueue = new CopyOnWriteArrayList<>();
 
     @Setter
     private StationStatus status;
@@ -24,7 +24,6 @@ public class Station {
         this.id = id;
         this.ownerUsername = ownerUsername;
         this.name = name;
-        this.mediaQueue = new CopyOnWriteArrayList<>();
     }
 
     public Station() {}
