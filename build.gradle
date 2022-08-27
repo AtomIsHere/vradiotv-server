@@ -35,7 +35,7 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    testImplementation 'it.ozimov:embedded-redis:0.7.3'
+    testImplementation "org.testcontainers:testcontainers:1.17.3"
     testImplementation 'com.h2database:h2'
 }
 
