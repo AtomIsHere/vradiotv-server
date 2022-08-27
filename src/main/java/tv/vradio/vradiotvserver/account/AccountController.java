@@ -3,31 +3,36 @@ package tv.vradio.vradiotvserver.account;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import tv.vradio.vradiotvserver.account.auth.AuthRepository;
+import tv.vradio.vradiotvserver.account.auth.AuthToken;
 import tv.vradio.vradiotvserver.exceptions.AccountNotFoundException;
+import tv.vradio.vradiotvserver.exceptions.AuthenticationFailureException;
 import tv.vradio.vradiotvserver.exceptions.InvalidPasswordException;
+
+import java.util.UUID;
 
 @RestController
 public class AccountController {
-    private final AccountRepository repository;
-    private final AccountService accountService;
+    private final AccountRepository accountRepository;
+    private final AuthRepository authRepository;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AccountController(AccountRepository repository, AccountService service) {
-        this.repository = repository;
-        this.accountService = service;
+    public AccountController(AccountRepository accountRepository, AuthRepository authRepository) {
+        this.accountRepository = accountRepository;
+        this.authRepository = authRepository;
     }
 
     @GetMapping("/account/create-account")
     public CreationResult createAccount(@RequestParam(name = "username") String username, @RequestParam(name = "email") String email, @RequestParam(name = "password") String password) {
-        if(repository.existsByUsername(username)) {
+        if(accountRepository.existsByUsername(username)) {
             return CreationResult.USERNAME_EXISTS;
-        } else if(repository.existsByEmail(email)) {
+        } else if(accountRepository.existsByEmail(email)) {
             return CreationResult.EMAIL_EXISTS;
         }
 
         String hashedPassword = passwordEncoder.encode(password);
-        repository.save(new Account(username, email, hashedPassword, false));
+        accountRepository.save(new Account(username, email, hashedPassword, false));
 
         //TODO: Verify emails
 
@@ -35,11 +40,15 @@ public class AccountController {
     }
 
     @GetMapping("/account/login")
-    public String login(@RequestParam(name = "username") String username, @RequestParam(name = "password") String password) {
-        Account target = repository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
+    public AuthToken login(@RequestParam(name = "username") String username, @RequestParam(name = "password") String password) {
+        Account target = accountRepository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
 
         if(passwordEncoder.matches(password, target.getHashedPassword())) {
-            return accountService.generateToken(target);
+            authRepository.findName(username).ifPresent(at -> authRepository.deleteById(at.id()));
+
+            AuthToken token = new AuthToken(UUID.randomUUID(), target.getUsername());
+            authRepository.save(token);
+            return token;
         } else {
             throw new InvalidPasswordException();
         }
@@ -47,20 +56,26 @@ public class AccountController {
 
     @GetMapping("/account/check-auth")
     public boolean checkAuth(@RequestParam(name = "username") String username, @RequestParam(name = "auth-key") String authKey) {
-        Account target = repository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
+       UUID auth;
+       try {
+           auth = UUID.fromString(authKey);
+       } catch(IllegalArgumentException ex) {
+           throw new AuthenticationFailureException(authKey);
+       }
 
-        return accountService.confirmToken(target, authKey);
+       return authRepository.confirmToken(auth, username);
     }
 
     @GetMapping("/account/logout")
-    public boolean logout(@RequestParam(name = "username") String username, @RequestParam(name = "auth-key") String authKey) {
-        Account target = repository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
-
-        if(accountService.confirmToken(target, authKey)) {
-            accountService.deauth(target);
-        } else {
-            throw new InvalidPasswordException();
+    public boolean logout(@RequestParam(name = "auth-key") String authKey) {
+        UUID auth;
+        try {
+            auth = UUID.fromString(authKey);
+        } catch(IllegalArgumentException ex) {
+            throw new AuthenticationFailureException(authKey);
         }
+
+        authRepository.deleteById(auth);
 
         return true;
     }
