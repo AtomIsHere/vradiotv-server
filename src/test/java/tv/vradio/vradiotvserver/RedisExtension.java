@@ -21,6 +21,6 @@ public class RedisExtension implements BeforeAllCallback, AfterAllCallback {
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
-
+        redis.stop();
     }
 }
