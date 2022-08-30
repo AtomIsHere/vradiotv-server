@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import tv.vradio.vradiotvserver.RedisExtension;
 import tv.vradio.vradiotvserver.account.AccountController;
@@ -33,6 +34,8 @@ public class StationControllerTest {
     private StationController stationController;
     @Autowired
     private AccountController accountController;
+    @Autowired
+    private RedisTemplate<String, String> redis;
 
     private static UUID stationId;
     private static AuthToken token;
@@ -77,5 +80,14 @@ public class StationControllerTest {
 
         assertTrue(compare1.equals(test1.name()) || compare1.equals(test2.name()));
         assertTrue(compare2.equals(test1.name()) || compare2.equals(test2.name()));
+    }
+
+    @Test
+    @Order(2)
+    public void joinCodeTest () {
+        int joinCode = stationController.join(stationId.toString());
+        String fromRedis = redis.opsForValue().get("join-code:" + joinCode);
+
+        assertEquals(stationId.toString(), fromRedis);
     }
 }

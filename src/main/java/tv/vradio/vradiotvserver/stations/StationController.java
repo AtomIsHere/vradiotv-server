@@ -9,6 +9,7 @@ import tv.vradio.vradiotvserver.account.auth.AuthRepository;
 import tv.vradio.vradiotvserver.account.auth.AuthToken;
 import tv.vradio.vradiotvserver.exceptions.AuthenticationFailureException;
 import tv.vradio.vradiotvserver.exceptions.StationNotFoundException;
+import tv.vradio.vradiotvserver.stations.join.JoinService;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -20,6 +21,7 @@ import java.util.stream.StreamSupport;
 public class StationController {
     private final AuthRepository authRepository;
     private final StationRepository stationRepository;
+    private final JoinService joinService;
 
     @GetMapping("/stations/get-all")
     public Collection<Station> getAll() {
@@ -107,5 +109,18 @@ public class StationController {
         stationRepository.deleteById(stationId);
         stationRepository.save(target);
         return media;
+    }
+
+    @GetMapping("/stations/{id}/join")
+    public int join(@PathVariable("id") String id) {
+        UUID stationId;
+        try {
+            stationId = UUID.fromString(id);
+        } catch (IllegalArgumentException iae) {
+            throw new StationNotFoundException(id);
+        }
+
+        Station target = stationRepository.findById(stationId).orElseThrow(() -> new StationNotFoundException(id));
+        return joinService.generateJoinCode(target);
     }
 }
