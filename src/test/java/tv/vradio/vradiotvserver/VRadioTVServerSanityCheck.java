@@ -13,6 +13,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import tv.vradio.vradiotvserver.account.AccountController;
 import tv.vradio.vradiotvserver.stations.StationController;
 
+@SuppressWarnings("NewClassNamingConvention")
 @SpringBootTest
 @ExtendWith(RedisExtension.class)
 @Order(1)
