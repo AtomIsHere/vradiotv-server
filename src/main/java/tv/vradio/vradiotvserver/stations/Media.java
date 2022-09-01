@@ -8,7 +8,7 @@ package tv.vradio.vradiotvserver.stations;
  * @param duration how long the media is (in ms)
  * @param streamingService which service the media is on
  */
-public record Media(String name, String url, double duration, StreamingService streamingService) {
+public record Media(String name, String url, long duration, StreamingService streamingService) {
     public enum StreamingService {
         SPOTIFY,
         NETFLIX

@@ -71,6 +71,7 @@ public class StationController {
         }
 
         station = new Station(UUID.randomUUID(), accountOwner, name);
+        station.getMediaQueue().add(new Media("_", "_", 0L, Media.StreamingService.SPOTIFY));
         stationRepository.save(station);
         return station;
     }
