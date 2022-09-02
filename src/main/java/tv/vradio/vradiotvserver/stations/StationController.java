@@ -1,5 +1,6 @@
 package tv.vradio.vradiotvserver.stations;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,23 +11,21 @@ import tv.vradio.vradiotvserver.account.auth.AuthToken;
 import tv.vradio.vradiotvserver.exceptions.AuthenticationFailureException;
 import tv.vradio.vradiotvserver.exceptions.StationNotFoundException;
 import tv.vradio.vradiotvserver.stations.join.JoinService;
+import tv.vradio.vradiotvserver.stations.json.StationJsonService;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequiredArgsConstructor
 public class StationController {
     private final AuthRepository authRepository;
-    private final StationRepository stationRepository;
     private final JoinService joinService;
+    private final StationJsonService stationService;
 
     @GetMapping("/stations/get-all")
     public Collection<Station> getAll() {
-        return StreamSupport.stream(stationRepository.findAll().spliterator(), false)
-                .collect(Collectors.toUnmodifiableSet());
+        return stationService.getAll();
     }
 
     @GetMapping("/stations/get")
@@ -38,12 +37,12 @@ public class StationController {
             throw new StationNotFoundException(stationId);
         }
 
-        return stationRepository.findById(id).orElseThrow(() -> new StationNotFoundException(stationId));
+        return stationService.getStation(id).orElseThrow(() -> new StationNotFoundException(stationId));
     }
 
     @GetMapping("/stations/get-by-owner")
     public Station getByOwner(@RequestParam("owner") String owner) {
-         return stationRepository.findOwnerName(owner).orElseThrow(() -> new StationNotFoundException(owner));
+         return stationService.findByOwnerUsername(owner).orElseThrow(() -> new StationNotFoundException(owner));
     }
 
     @GetMapping("/stations/create")
@@ -65,14 +64,18 @@ public class StationController {
 
         String accountOwner = token.accountName();
 
-        Station station = stationRepository.findOwnerName(accountOwner).orElse(null);
+        Station station = stationService.findByOwnerUsername(accountOwner).orElse(null);
         if(station != null) {
             return station;
         }
 
         station = new Station(UUID.randomUUID(), accountOwner, name);
         station.getMediaQueue().add(new Media("_", "_", 0L, Media.StreamingService.SPOTIFY));
-        stationRepository.save(station);
+        try {
+            stationService.save(station);
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
         return station;
     }
 
@@ -90,7 +93,7 @@ public class StationController {
             throw new StationNotFoundException(id);
         }
 
-        Station target = stationRepository.findById(stationId).orElseThrow(() -> new StationNotFoundException(id));
+        Station target = stationService.getStation(stationId).orElseThrow(() -> new StationNotFoundException(id));
 
         UUID authToken;
         try {
@@ -107,8 +110,12 @@ public class StationController {
 
         Media media = new Media(name, url, duration, service);
         target.getMediaQueue().add(media);
-        stationRepository.deleteById(stationId);
-        stationRepository.save(target);
+        stationService.delete(stationId);
+        try {
+            stationService.save(target);
+        } catch(JsonProcessingException ex) {
+            throw new RuntimeException(ex);
+        }
         return media;
     }
 
@@ -121,7 +128,7 @@ public class StationController {
             throw new StationNotFoundException(id);
         }
 
-        Station target = stationRepository.findById(stationId).orElseThrow(() -> new StationNotFoundException(id));
+        Station target = stationService.getStation(stationId).orElseThrow(() -> new StationNotFoundException(id));
         return joinService.generateJoinCode(target);
     }
 }

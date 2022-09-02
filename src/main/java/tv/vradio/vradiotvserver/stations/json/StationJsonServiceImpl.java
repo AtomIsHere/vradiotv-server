@@ -10,7 +10,7 @@ import java.util.*;
 
 @Service
 public class StationJsonServiceImpl implements StationJsonService {
-    private static final String REDIS_PREFIX = "Station:";
+    private static final String REDIS_PREFIX = "Station_";
 
     private final RedisTemplate<String, String> redis;
     private final ObjectMapper json;
@@ -28,9 +28,9 @@ public class StationJsonServiceImpl implements StationJsonService {
         }
 
         try {
-            return Optional.of(json.convertValue(fromRedis, Station.class));
-        } catch(IllegalArgumentException iae) {
-            return Optional.empty();
+            return Optional.of(json.readValue(fromRedis, Station.class));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 
