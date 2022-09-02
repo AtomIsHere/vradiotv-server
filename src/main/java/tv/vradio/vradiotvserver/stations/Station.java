@@ -1,13 +1,11 @@
 package tv.vradio.vradiotvserver.stations;
 
 import lombok.Getter;
-import org.springframework.data.redis.core.RedisHash;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@RedisHash("Station")
 @Getter
 public class Station {
     private UUID id;
