@@ -73,10 +73,10 @@ public class StationControllerTest {
 
         Station station = stationController.get(stationId.toString());
 
-        assertEquals(station.getMediaQueue().size(), 3);
+        assertEquals(station.getMediaQueue().size(), 2);
 
-        String compare1 = station.getMediaQueue().get(1).name();
-        String compare2 = station.getMediaQueue().get(2).name();
+        String compare1 = station.getMediaQueue().get(0).name();
+        String compare2 = station.getMediaQueue().get(1).name();
 
         assertTrue(compare1.equals(test1.name()) || compare1.equals(test2.name()));
         assertTrue(compare2.equals(test1.name()) || compare2.equals(test2.name()));
