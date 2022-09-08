@@ -30,6 +30,7 @@ class VRadioTVServerSanityCheck {
 
     @Test
     void contextLoads() {
+        // Check if everything loads correctly
         assertNotNull(pingController);
         assertNotNull(accountController);
         assertNotNull(stationController);

@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class VRadioTVServerApplication {
     public static void main(String[] args) {
+        // Start the application
         SpringApplication.run(VRadioTVServerApplication.class, args);
     }
 
@@ -20,6 +21,7 @@ public class VRadioTVServerApplication {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                // Disable CORS to make development easier
                 registry.addMapping("/**").allowedMethods("*");
             }
         };
@@ -27,6 +29,7 @@ public class VRadioTVServerApplication {
 
     @Bean
     public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory connectionFactory) {
+        // Configure RedisTemplate to use the Jedis library
         RedisTemplate<?, ?> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 

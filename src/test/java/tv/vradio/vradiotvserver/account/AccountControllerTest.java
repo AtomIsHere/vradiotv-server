@@ -59,11 +59,14 @@ public class AccountControllerTest {
     @Test
     @Order(2)
     public void repeatedAuthTest() {
+        // Generate two tokens
         AuthToken oldToken = controller.login(TestAccountData.USERNAME, TestAccountData.PASSWORD);
         AuthToken newToken = controller.login(TestAccountData.USERNAME, TestAccountData.PASSWORD);
 
+        // Ensure the tokens aren't equal
         assertNotEquals(oldToken.id().toString(), newToken.id().toString());
 
+        // Ensure the right token is authed
         assertTrue(controller.checkAuth(TestAccountData.USERNAME, newToken.id().toString()));
         assertFalse(controller.checkAuth(TestAccountData.PASSWORD, oldToken.id().toString()));
 
@@ -73,10 +76,14 @@ public class AccountControllerTest {
     @Test
     @Order(2)
     public void logoutTest() {
+        // Create token
         AuthToken token = controller.login(TestAccountData.USERNAME, TestAccountData.PASSWORD);
 
+        // Ensure token is authed
         assertTrue(controller.checkAuth(TestAccountData.USERNAME, token.id().toString()));
+        // Deauth token
         assertTrue(controller.logout(token.id().toString()));
+        // Ensure token is deauthed
         assertFalse(controller.checkAuth(TestAccountData.USERNAME, token.id().toString()));
     }
 }

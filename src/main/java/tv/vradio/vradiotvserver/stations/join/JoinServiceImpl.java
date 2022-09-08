@@ -20,8 +20,11 @@ public class JoinServiceImpl implements JoinService {
 
     @Override
     public int generateJoinCode(Station station) {
+        // Get the current join code and increment it for when the next join code is generated
         int current = count.getAndIncrement();
+        // Set the join code with the station's id
         redis.opsForValue().set(PREFIX + current, station.getId().toString());
+        // Return the generated join code
         return current;
     }
 }
